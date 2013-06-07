@@ -1,4 +1,6 @@
 <?php
+include_once('bootstrap.php');
+
 define('DRIVER_DOCUMENT_TMP_SCAN_PDF_PATH', APPLICATION_PATH . "/../" . PUBLIC_HTML_FOLDER . "/documents/_tmp-scan-pdf/");
 class Driver_Plugin_Document
 {
