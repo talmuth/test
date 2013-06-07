@@ -12,8 +12,10 @@ defined('PUBLIC_HTML_FOLDER') ||
 
 $paths = explode(PATH_SEPARATOR, get_include_path());
 $paths[] = realpath(__DIR__.'/library');
+$paths[] = realpath(__DIR__.'/usr/share/php/PHPUnit');
 set_include_path(implode(PATH_SEPARATOR, $paths));
 unset($paths);
 
 require_once 'Zend/Loader/Autoloader.php';
 $loader = Zend_Loader_Autoloader::getInstance();
+
