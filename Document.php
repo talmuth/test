@@ -5,11 +5,14 @@ define('DRIVER_DOCUMENT_TMP_SCAN_PDF_PATH', APPLICATION_PATH . "/documents/_tmp-
 class Driver_Plugin_Document
 {
     private $_scanPdfDir;
+    private $_documentModel;
 
     const tmpScanPdfDir = DRIVER_DOCUMENT_TMP_SCAN_PDF_PATH;
 
-    public function __construct()
+    public function __construct(Documents_Model_CustomDocumentDriverFormNscCheck $documentModel)
     {
+        $this->_documentModel = $documentModel;
+
         if (!is_dir(self::tmpScanPdfDir)) {
             if (!mkdir(self::tmpScanPdfDir, 0777, true)) {
                 throw new Exception('Unable to create scan directory', 20);
@@ -87,8 +90,11 @@ class Driver_Plugin_Document
             throw new Exception($errMessage);
         }
 
-        $documentModel = new Documents_Model_CustomDocumentDriverFormNscCheck();
-        $documentRow = $documentModel->getRow($documentId);
+        $documentRow = $this->_documentModel->getRow($documentId);
+
+        if (!$documentRow) {
+            throw new Exception('Unknown document');
+        }
 
         $path = Documents_Model_CustomDocumentDriverFormNscCheck::uploadPath;
 

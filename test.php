@@ -6,25 +6,24 @@ require_once('Document.php');
 
 class DriverPluginDocumentTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @var PHPUnit_Framework_MockObject_MockObject
+     */
+    private $_mockDocumentModel;
 
     protected function setUp()
     {
-        //        $_FILES = array(
-//            'file_valid' => array(
-//                'uploadPicture' => 'foo.jpg',
-//                'name'     => 'foo.txt',
-//                'tmp_name' => '/tmp/php42up23',
-//                'type'     => 'text/plain',
-//                'size'     => 42,
-//                'error'    => 0
-//            )
-//        );
+        // Create a stub for the SomeClass class.
+        $this->_mockDocumentModel = $this->getMockBuilder('Documents_Model_CustomDocumentDriverFormNscCheck')
+            ->disableOriginalConstructor()
+            ->getMock();
+
         parent::setUp();
     }
 
     public function testCreatingClass()
     {
-        $driverPluginDocument = new Driver_Plugin_Document();
+        $driverPluginDocument = new Driver_Plugin_Document($this->_mockDocumentModel);
         $this->assertNotNull($driverPluginDocument);
     }
 
@@ -39,7 +38,7 @@ class DriverPluginDocumentTest extends PHPUnit_Framework_TestCase
      */
     public function testUploadDocumentMethodNothingToUploadException()
     {
-        $driverPluginDocument = new Driver_Plugin_Document();
+        $driverPluginDocument = new Driver_Plugin_Document($this->_mockDocumentModel);
         $fileName = 'test';
         $driverPluginDocument->uploadDocumentPage(1, 1, $fileName);
     }
@@ -60,7 +59,7 @@ class DriverPluginDocumentTest extends PHPUnit_Framework_TestCase
             )
         );
 
-        $driverPluginDocument = new Driver_Plugin_Document();
+        $driverPluginDocument = new Driver_Plugin_Document($this->_mockDocumentModel);
         $fileName = 'test';
         $driverPluginDocument->uploadDocumentPage(1, 1, $fileName);
     }
@@ -81,7 +80,7 @@ class DriverPluginDocumentTest extends PHPUnit_Framework_TestCase
             )
         );
 
-        $driverPluginDocument = new Driver_Plugin_Document();
+        $driverPluginDocument = new Driver_Plugin_Document($this->_mockDocumentModel);
         $fileName = 'test';
         $driverPluginDocument->uploadDocumentPage(1, 1, $fileName);
     }
@@ -102,10 +101,143 @@ class DriverPluginDocumentTest extends PHPUnit_Framework_TestCase
             )
         );
 
-        $driverPluginDocument = new Driver_Plugin_Document();
+        $driverPluginDocument = new Driver_Plugin_Document($this->_mockDocumentModel);
         $fileName = 'test';
         $driverPluginDocument->uploadDocumentPage(1, 1, $fileName);
     }
+
+    /**
+     * @expectedException        Exception
+     * @expectedExceptionMessage The uploaded file was only partially uploaded
+     */
+    public function testUploadDocumentThrowUploadPartialException()
+    {
+        $_FILES = array(
+            'uploadPicture' => array(
+                'name'     => 'foo.jpg',
+                'tmp_name' => '/tmp/php42up23',
+                'type'     => 'image/jpeg',
+                'size'     => 42,
+                'error'    => UPLOAD_ERR_PARTIAL
+            )
+        );
+
+        $driverPluginDocument = new Driver_Plugin_Document($this->_mockDocumentModel);
+        $fileName = 'test';
+        $driverPluginDocument->uploadDocumentPage(1, 1, $fileName);
+    }
+
+    /**
+     * @expectedException        Exception
+     * @expectedExceptionMessage No file was uploaded
+     */
+    public function testUploadDocumentThrowNoFileException()
+    {
+        $_FILES = array(
+            'uploadPicture' => array(
+                'name'     => 'foo.jpg',
+                'tmp_name' => '/tmp/php42up23',
+                'type'     => 'image/jpeg',
+                'size'     => 42,
+                'error'    => UPLOAD_ERR_NO_FILE
+            )
+        );
+
+        $driverPluginDocument = new Driver_Plugin_Document($this->_mockDocumentModel);
+        $fileName = 'test';
+        $driverPluginDocument->uploadDocumentPage(1, 1, $fileName);
+    }
+
+    /**
+     * @expectedException        Exception
+     * @expectedExceptionMessage Missing a temporary folder
+     */
+    public function testUploadDocumentThrowNoTmpDirException()
+    {
+        $_FILES = array(
+            'uploadPicture' => array(
+                'name'     => 'foo.jpg',
+                'tmp_name' => '/tmp/php42up23',
+                'type'     => 'image/jpeg',
+                'size'     => 42,
+                'error'    => UPLOAD_ERR_NO_TMP_DIR
+            )
+        );
+
+        $driverPluginDocument = new Driver_Plugin_Document($this->_mockDocumentModel);
+        $fileName = 'test';
+        $driverPluginDocument->uploadDocumentPage(1, 1, $fileName);
+    }
+
+    /**
+     * @expectedException        Exception
+     * @expectedExceptionMessage Failed to write file to disk
+     */
+    public function testUploadDocumentThrowCantWriteException()
+    {
+        $_FILES = array(
+            'uploadPicture' => array(
+                'name'     => 'foo.jpg',
+                'tmp_name' => '/tmp/php42up23',
+                'type'     => 'image/jpeg',
+                'size'     => 42,
+                'error'    => UPLOAD_ERR_CANT_WRITE
+            )
+        );
+
+        $driverPluginDocument = new Driver_Plugin_Document($this->_mockDocumentModel);
+        $fileName = 'test';
+        $driverPluginDocument->uploadDocumentPage(1, 1, $fileName);
+    }
+
+    /**
+     * @expectedException        Exception
+     * @expectedExceptionMessage File upload stopped by extension
+     */
+    public function testUploadDocumentThrowExtensionException()
+    {
+        $_FILES = array(
+            'uploadPicture' => array(
+                'name'     => 'foo.jpg',
+                'tmp_name' => '/tmp/php42up23',
+                'type'     => 'image/jpeg',
+                'size'     => 42,
+                'error'    => UPLOAD_ERR_EXTENSION
+            )
+        );
+
+        $driverPluginDocument = new Driver_Plugin_Document($this->_mockDocumentModel);
+        $fileName = 'test';
+        $driverPluginDocument->uploadDocumentPage(1, 1, $fileName);
+    }
+
+//    /**
+//     * @expectedException        Exception
+//     * @expectedExceptionMessage Unknown document
+//     */
+//    public function testUploadDocumentThrowNonExistentDocumentException()
+//    {
+//        // Configure the stub.
+//        $this->_mockDocumentModel->expects($this->any())
+//            ->method('getRow')
+//            ->will($this->returnValue('null'));
+//
+//        $driverPluginDocument = new Driver_Plugin_Document($this->_mockDocumentModel);
+//
+//        $fileName = 'test';
+//
+//        $_FILES = array(
+//            'uploadPicture' => array(
+//                'name'     => 'foo.jpg',
+//                'tmp_name' => '/tmp/php42up23',
+//                'type'     => 'image/jpeg',
+//                'size'     => 42,
+//                'error'    => 0
+//            )
+//        );
+//
+//        $driverPluginDocument->uploadDocumentPage(1, 1, $fileName);
+//    }
 
 
 }
